@@ -1,0 +1,16 @@
+{
+  "id": {
+    "type": "string",
+    "required": true
+  },
+
+  "display_name": {
+    "type": "string",
+    "required": true
+  },
+
+  "created": {
+    "type": "string",
+    "required": true
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": {
+    "type": "string",
+    "required": true
+  },
+
+  "display_name": {
+    "type": "string",
+    "required": true
+  },
+
+  "created": {
+    "type": "string",
+    "required": true
+  },
+
+  "admins": {
+    "type": "collection",
+    "required": true,
+    "empty": false,
+    "members": {
+      "type": "foreign_key",
+      "foreign_key": "user"
+    }
+  }
+}

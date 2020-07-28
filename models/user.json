@@ -1,0 +1,39 @@
+{
+  "id": {
+    "type": "string",
+    "required": true
+  },
+
+  "user": {
+    "type": "string",
+    "required": true
+  },
+
+  "pass": {
+    "type": "string",
+    "required": true
+  },
+
+  "display_name": {
+    "type": "string"
+  },
+
+  "emails": {
+    "collection": true,
+    "required": true,
+    "members": {
+      "type": "string"
+    }
+  },
+
+  "role": {
+    "type": "foreign_key",
+    "required": true,
+    "foreign_key": "role"
+  },
+
+  "created": {
+    "type": "string",
+    "required": true
+  }
+}
