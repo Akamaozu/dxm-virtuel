@@ -22,5 +22,8 @@
     "supe": "^0.5.2",
     "supe-addon-citizen-request": "^2.0.1",
     "supe-addon-citizen-supervision-api": "^1.0.8"
+  },
+  "scripts": {
+    "start": "node index"
   }
 }
