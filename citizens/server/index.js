@@ -1,11 +1,14 @@
 var create_task = require('cjs-task'),
+    js_base64 = require('js-base64'),
     socketio = require('socket.io'),
     debounce = require('debounce'),
     express = require('express'),
     mime = require('mime-types'),
+    sha = require('sha.js'),
     path = require('path'),
     http = require('http'),
     fs = require('fs'),
+    base64 = js_base64.Base64,
     app = create_task();
 
 app.step( 'configure app variables', function(){
@@ -74,10 +77,19 @@ app.step( 'handle homepage requests', function(){
     serve_homepage.set( 'res', res );
 
     serve_homepage.callback( function( error ){
-      if( error ) console.log( 'action=serve-homepage success=false reason="'+ error.message +'"' );
+      if( error ) console.log( 'action=serve-homepage success=false reason="'+ error.message +'"', error );
 
-      if( ! home_markup ) serve_homepage.get( 'res' ).status( 400 ).send( 'file not found' );
-      else serve_homepage.get( 'res' ).send( home_markup );
+      if( ! home_markup ) return serve_homepage.get( 'res' ).status( 400 ).send( 'file not found' );
+
+      var res = serve_homepage.get( 'res' ),
+          csp_script_src = serve_homepage.get( 'content-security-policy-script-src' );
+
+      if( csp_script_src && csp_script_src.length > 0 ){
+        var stringified_csp_script_src = csp_script_src.join( "' '" );
+        res.set( 'Content-Security-Policy', 'script-src \''+ stringified_csp_script_src +'\'' );
+      }
+
+      res.send( home_markup );
     });
 
     if( ! home_markup ){
@@ -129,6 +141,21 @@ app.step( 'handle homepage requests', function(){
       else serve_homepage.next();
     });
 
+    serve_homepage.step( 'embed js script in html', function(){
+      app.get( 'get-script' )( 'behavior.browserified.js', function( error, data ){
+        if( error ) throw error;
+
+        var script = data.script,
+            script_sha256 = data.sha256,
+            script_sha256_base64 = base64.encode( data.sha256 );
+
+        // serve_homepage.get( 'content-security-policy-script-src' ).push( 'sha256-' + script_sha256_base64 );
+
+        home_markup = home_markup.replace( '{{ scripts.behavior }}', '<script type="text/javascript">'+ script +'</script>' );
+        serve_homepage.next();
+      });
+    });
+
     serve_homepage.start();
   });
 
@@ -136,53 +163,113 @@ app.step( 'handle homepage requests', function(){
 });
 
 app.step( 'handle js requests', function(){
-  var js_cache = {};
+  app.set( 'scripts-cache', {});
+  app.set( 'get-script', get_script );
 
   app.hook.add( 'incoming-request', 'serve-js', function( req, handle_req ){
     var is_js_request = req.url.indexOf( '/js/' ) == 0;
     if( ! is_js_request ) return;
 
     var dissected_url = req.url.split( '/js/' ),
-        script = dissected_url[1],
+        script_to_serve = dissected_url[1],
         serve_script = create_task(),
         res = handle_req();
 
-    if( js_cache[ script ] ){
-      var cached_data = js_cache[ script ];
-
-      if( cached_data == '[ERROR]ENOENT' ) return res.status( 404 ).send( 'file not found' );
-      else return res.send( cached_data );
-    }
-
-    var path_to_script_dir = app.get( 'path-to-root' ) + '/citizens/server/js';
-
-    fs.readFile( path_to_script_dir +'/'+ script, 'utf8', function( error, binary ){
-      if( error ) js_cache[ script ] = '[ERROR]ENOENT';
-      else js_cache[ script ] = binary.toString();
-
-      console.log( 'action=load-script-to-memory success='+ ( error ? false : true ) +' src="js/'+ script +'"' );
-
-      if( error ) return res.status( 404 ).send( 'file not found' );
-
-      res.send( js_cache[ script ] );
-
-      fs.watch( path_to_script_dir +'/'+ script, debounce( function( event, filename ){
-        if( event !== 'change' ) return;
-
-        fs.readFile( path_to_script_dir +'/'+ script, 'utf8', function( error, binary ){
-          var log_entry = 'action=update-script-in-memory success=';
-
-              if( error ) log_entry += 'false reason="'+ error.message +'"';
-              else log_entry += 'true reason="'+ script +' updated"';
-
-              if( binary ) js_cache[ script ] = binary.toString();
-              console.log( log_entry );
-        });
-      }, 100 ) );
+    app.get( 'get-script' )( script_to_serve, function( error, data ){
+      if( error ) res.status( 404 ).send( 'file not found' );
+      else res.set( 'Etag', data.sha256 ).send( data.script );
     });
   });
 
   app.next();
+
+  function get_script( name, callback ){
+    if( ! callback || typeof callback !== 'function' ) throw new Error( 'callback is required and must be a function' );
+    if( ! name || typeof name !== 'string' ) return callback( new Error( 'script name is required and must be a string' ));
+
+    var get_script = create_task();
+
+    get_script.set( 'script-to-get', name );
+
+    get_script.step( 'get script from cache and exit early', function(){
+      var js_cache = app.get( 'scripts-cache' ),
+          script_to_get = js_cache[ get_script.get( 'script-to-get' ) ];
+
+      if( script_to_get ){
+        get_script.set( 'script', script_to_get );
+        return get_script.end();
+      }
+
+      else get_script.next();
+    });
+
+    cache_script_in_memory( get_script );
+
+    get_script.step( 'update in-memory cache when file changes', function(){
+      var script_to_get = get_script.get( 'script-to-get' ),
+          path_to_script_dir = get_script.get( 'path-to-script-dir' ),
+          path_to_script = path_to_script_dir +'/'+ script_to_get;
+
+      fs.watch( path_to_script, debounce( function( event, filename ){
+        if( event !== 'change' ) return;
+
+        var update_script_cache = create_task();
+
+        update_script_cache.set( 'script-to-get', script_to_get );
+        update_script_cache.set( 'path-to-script-dir', path_to_script_dir );
+
+        cache_script_in_memory( update_script_cache );
+
+        update_script_cache.callback( function( error ){
+          var log_entry = 'action=update-homepage-in-memory success=';
+
+          if( error ) log_entry += 'false reason="'+ error.message +'"';
+          else log_entry += 'true reason="'+ script_to_get +' updated"';
+
+          console.log( log_entry );
+        });
+
+        update_script_cache.start();
+      }, 100 ) );
+
+      get_script.next();
+    });
+
+    get_script.callback( function( error ){
+      if( error ) return callback( error );
+      else callback( null, get_script.get( 'script' ) );
+    });
+
+    get_script.start();
+
+    function cache_script_in_memory( task ){
+
+      task.step( 'cache script and sha256 in-memory', function(){
+        var path_to_script_dir = app.get( 'path-to-root' ) + '/citizens/server/js',
+            script = task.get( 'script-to-get' ),
+            path_to_script = path_to_script_dir +'/'+ script;
+
+        task.set( 'path-to-script-dir', path_to_script_dir );
+
+        fs.readFile( path_to_script, 'utf8', function( error, content ){
+          var js_cache = app.get( 'scripts-cache' );
+
+          console.log( 'action=load-script-to-memory success='+ ( error ? false : true ) +' src="js/'+ script +'"' );
+
+          if( error ) throw error;
+
+          var struct = {};
+              struct.script = content;
+              struct.sha256 = sha( 'sha256' ).update( struct.script ).digest( 'base64' );
+
+          js_cache[ script ] = struct;
+
+          task.set( 'script', struct );
+          task.next();
+        });
+      });
+    }
+  }
 });
 
 app.step( 'handle css requests', function(){
@@ -297,15 +384,25 @@ app.step( 'create http server using express settings', function(){
 
 app.step( 'connect socket.io to server', function(){
   var server = app.get( 'server' ),
-      socket_server = socketio( server );
+      socket_server = socketio( server ),
+      connected = 0;
 
   socket_server.on( 'connection', function( socket ){
-    console.log( 'action=log-new-connection socket=' + socket.id );
+    connected += 1;
+
+    console.log( 'action=log-new-connection socket=' + socket.id + ' connected='+ connected );
 
     socket.on( 'click-tracked', function( screen ){
-      console.log( 'action=log-tracked-click session='+ socket.id + ' item="'+ screen.element + '"' );
+      console.log( 'action=log-tracked-click socket='+ socket.id + ' item="'+ screen.element + '"' );
+    });
+
+    socket.on( 'disconnect', function( reason ){
+      connected -= 1;
+
+      console.log( 'action=log-new-disconnection socket='+ socket.id +' reason="'+ reason +'" connected='+ connected );
     });
   });
+
 
   app.next();
 });
