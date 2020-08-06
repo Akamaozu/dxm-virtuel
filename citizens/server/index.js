@@ -1,4 +1,5 @@
 var create_task = require('cjs-task'),
+    browserify = require('browserify'),
     js_base64 = require('js-base64'),
     socketio = require('socket.io'),
     debounce = require('debounce'),
@@ -141,21 +142,6 @@ app.step( 'handle homepage requests', function(){
       else serve_homepage.next();
     });
 
-    serve_homepage.step( 'embed js script in html', function(){
-      app.get( 'get-script' )( 'behavior.browserified.js', function( error, data ){
-        if( error ) throw error;
-
-        var script = data.script,
-            script_sha256 = data.sha256,
-            script_sha256_base64 = base64.encode( data.sha256 );
-
-        // serve_homepage.get( 'content-security-policy-script-src' ).push( 'sha256-' + script_sha256_base64 );
-
-        home_markup = home_markup.replace( '{{ scripts.behavior }}', '<script type="text/javascript">'+ script +'</script>' );
-        serve_homepage.next();
-      });
-    });
-
     serve_homepage.start();
   });
 
@@ -177,7 +163,9 @@ app.step( 'handle js requests', function(){
 
     app.get( 'get-script' )( script_to_serve, function( error, data ){
       if( error ) res.status( 404 ).send( 'file not found' );
-      else res.set( 'Etag', data.sha256 ).send( data.script );
+      else res.set( 'Etag', data.sha256 ).send( data.content );
+
+      if( error ) console.log( error );
     });
   });
 
@@ -207,8 +195,7 @@ app.step( 'handle js requests', function(){
 
     get_script.step( 'update in-memory cache when file changes', function(){
       var script_to_get = get_script.get( 'script-to-get' ),
-          path_to_script_dir = get_script.get( 'path-to-script-dir' ),
-          path_to_script = path_to_script_dir +'/'+ script_to_get;
+          path_to_script = path.join( __dirname, './js/', script_to_get );
 
       fs.watch( path_to_script, debounce( function( event, filename ){
         if( event !== 'change' ) return;
@@ -216,15 +203,14 @@ app.step( 'handle js requests', function(){
         var update_script_cache = create_task();
 
         update_script_cache.set( 'script-to-get', script_to_get );
-        update_script_cache.set( 'path-to-script-dir', path_to_script_dir );
 
         cache_script_in_memory( update_script_cache );
 
         update_script_cache.callback( function( error ){
-          var log_entry = 'action=update-homepage-in-memory success=';
+          var log_entry = 'action=update-in-memory-script-cache script='+ script_to_get +' success=';
 
           if( error ) log_entry += 'false reason="'+ error.message +'"';
-          else log_entry += 'true reason="'+ script_to_get +' updated"';
+          else log_entry += 'true reason="source file updated"';
 
           console.log( log_entry );
         });
@@ -243,30 +229,37 @@ app.step( 'handle js requests', function(){
     get_script.start();
 
     function cache_script_in_memory( task ){
+      var path_to_script_dir = app.get( 'path-to-root' ) + '/citizens/server/js',
+          script = task.get( 'script-to-get' ),
+          path_to_script = path_to_script_dir +'/'+ script;
 
-      task.step( 'cache script and sha256 in-memory', function(){
-        var path_to_script_dir = app.get( 'path-to-root' ) + '/citizens/server/js',
-            script = task.get( 'script-to-get' ),
-            path_to_script = path_to_script_dir +'/'+ script;
+      task.step( 'browserify script', function(){
+        var script_content = task.get( 'script' );
 
-        task.set( 'path-to-script-dir', path_to_script_dir );
-
-        fs.readFile( path_to_script, 'utf8', function( error, content ){
-          var js_cache = app.get( 'scripts-cache' );
-
-          console.log( 'action=load-script-to-memory success='+ ( error ? false : true ) +' src="js/'+ script +'"' );
-
+        browserify( path_to_script ).bundle( function( error, browserified_script ){
           if( error ) throw error;
 
-          var struct = {};
-              struct.script = content;
-              struct.sha256 = sha( 'sha256' ).update( struct.script ).digest( 'base64' );
+          console.log( 'action=browserify-script success='+ ( error ? false : true ) +' src="js/'+ script +'"' );
 
-          js_cache[ script ] = struct;
-
-          task.set( 'script', struct );
+          task.set( 'script', browserified_script );
           task.next();
         });
+      });
+
+      task.step( 'cache script and sha256 in-memory', function(){
+        var js_cache = app.get( 'scripts-cache' ),
+            script_struct = {};
+
+            script_struct.script = script;
+            script_struct.path = path_to_script;
+            script_struct.content = task.get( 'script' );
+            script_struct.sha256 = sha( 'sha256' ).update( script_struct.content ).digest( 'hex' );
+
+        js_cache[ script ] = script_struct;
+        task.set( 'script', script_struct );
+
+        console.log( 'action=load-script-to-memory success=true src="js/'+ script +'"' );
+        task.next();
       });
     }
   }
@@ -393,7 +386,7 @@ app.step( 'connect socket.io to server', function(){
     console.log( 'action=log-new-connection socket=' + socket.id + ' connected='+ connected );
 
     socket.on( 'click-tracked', function( screen ){
-      console.log( 'action=log-tracked-click socket='+ socket.id + ' item="'+ screen.element + '"' );
+      console.log( 'action=log-tracked-click socket='+ socket.id +' '+ screen.element );
     });
 
     socket.on( 'disconnect', function( reason ){

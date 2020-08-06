@@ -9,7 +9,7 @@ app.step( 'track clicks', function(){
       var socketio_client = app.get( 'socketio-client' );
       if( ! socketio_client ) return;
 
-      socketio_client.emit( 'click-tracked', { element: trackable.innerHTML });
+      socketio_client.emit( 'click-tracked', { element: trackable.id ? 'id='+ trackable.id : 'txt="'+ trackable.innerHTML +'"' });
     });
   });
 
