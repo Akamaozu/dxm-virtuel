@@ -378,22 +378,34 @@ app.step( 'create http server using express settings', function(){
 app.step( 'connect socket.io to server', function(){
   var server = app.get( 'server' ),
       socket_server = socketio( server ),
-      connected = 0;
+      connected = 0,
+      sessions = {};
 
   socket_server.on( 'connection', function( socket ){
-    connected += 1;
 
-    console.log( 'action=log-new-connection socket=' + socket.id + ' connected='+ connected );
+    socket.on( 'initiate-session', function(){
+      var now = Date.now(),
+          session_id_seed = socket.id + now,
+          session_id = sha( 'sha256').update( session_id_seed ).digest( 'hex' );
 
-    socket.on( 'click-tracked', function( screen ){
-      console.log( 'action=log-tracked-click socket='+ socket.id +' '+ screen.element );
+      sessions[ session_id ] = { id: session_id, started: now, socket: socket };
+
+      app.hook.run( 'session-started', session_id );
+
+      console.log( 'action=session-started id='+ session_id );
+
+      socket.emit( 'session-key', session_id );
+
+      socket.on( 'click-tracked', function( screen ){
+        console.log( 'action=log-tracked-click '+ screen.element +' session='+ session_id );
+      });
+
+      socket.on( 'disconnect', function( reason ){
+        delete sessions[ session_id ];
+        console.log( 'action=session-ended reason="'+ reason +'" session='+ session_id );
+      });
     });
 
-    socket.on( 'disconnect', function( reason ){
-      connected -= 1;
-
-      console.log( 'action=log-new-disconnection socket='+ socket.id +' reason="'+ reason +'" connected='+ connected );
-    });
   });
 
 

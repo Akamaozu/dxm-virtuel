@@ -9,7 +9,9 @@ app.step( 'track clicks', function(){
       var socketio_client = app.get( 'socketio-client' );
       if( ! socketio_client ) return;
 
-      socketio_client.emit( 'click-tracked', { element: trackable.id ? 'id='+ trackable.id : 'txt="'+ trackable.innerHTML +'"' });
+      var tracked_element = trackable.id ? 'id='+ trackable.id : 'txt="'+ trackable.innerHTML +'"';
+
+      socketio_client.emit( 'click-tracked', { element: tracked_element });
     });
   });
 
@@ -23,12 +25,28 @@ app.step( 'setup socket.io', function(){
     console.log( 'action=connect-socket-to-server success=true' );
   });
 
+  socketio_client.on( 'connect', initiate_session );
+
   socketio_client.on( 'disconnect', function(){
     console.log( 'action=disconnect-socket-from-server success=true' );
   });
 
   app.set( 'socketio-client', socketio_client );
+
   app.next();
+
+  function initiate_session(){
+    var session_key;
+
+    socketio_client.once( 'session-key', function( data ){
+      session_key = data;
+      console.log( 'action=get-session-key success=true key='+ session_key );
+
+      app.hook.run( 'session-key-received' );
+    });
+
+    socketio_client.emit( 'initiate-session' );
+  }
 });
 
 app.step( 'wait', function(){
