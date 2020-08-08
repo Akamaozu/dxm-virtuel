@@ -405,9 +405,7 @@ app.step( 'connect socket.io to server', function(){
         console.log( 'action=session-ended reason="'+ reason +'" session='+ session_id );
       });
     });
-
   });
-
 
   app.next();
 });

@@ -2,22 +2,6 @@ var socketio = require('socket.io-client'),
     create_task = require('cjs-task'),
     app = create_task();
 
-app.step( 'track clicks', function(){
-
-  document.querySelectorAll( '.track-click' ).forEach( function( trackable ){
-    trackable.addEventListener( 'click', function(){
-      var socketio_client = app.get( 'socketio-client' );
-      if( ! socketio_client ) return;
-
-      var tracked_element = trackable.id ? 'id='+ trackable.id : 'txt="'+ trackable.innerHTML +'"';
-
-      socketio_client.emit( 'click-tracked', { element: tracked_element });
-    });
-  });
-
-  app.next();
-});
-
 app.step( 'setup socket.io', function(){
   var socketio_client = socketio();
 
@@ -47,6 +31,25 @@ app.step( 'setup socket.io', function(){
 
     socketio_client.emit( 'initiate-session' );
   }
+});
+
+app.step( 'track clicks', function(){
+
+  document.querySelectorAll( '.screen-action' ).forEach( function( trackable ){
+    var screen = trackable.parentNode.parentNode.id;
+
+    trackable.addEventListener( 'click', function(){
+      var socketio_client = app.get( 'socketio-client' );
+      if( ! socketio_client ) return;
+
+      var tracked_element = trackable.id ? 'id='+ trackable.id : 'txt="'+ trackable.innerHTML +'"';
+      if( screen ) tracked_element += ' screen='+ screen;
+
+      socketio_client.emit( 'click-tracked', { element: tracked_element });
+    });
+  });
+
+  app.next();
 });
 
 app.step( 'wait', function(){

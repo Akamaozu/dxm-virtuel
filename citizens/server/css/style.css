@@ -4,52 +4,102 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
-body > .screen {
+body > #app-shell {
   display: block;
   position: relative;
-  width: 88vw;
-  height: 90vh;
-  padding: 5vh 5vw;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
-
-  body > #landing.screen {
-    width: 77vw;
-    height: 80vh;
-    padding: 10vh 10vw;
+  body > #app-shell > #app-background,
+  body > #app-shell > #app-screens,
+  body > #app-shell > #app-overlay {
+    display: block;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
   }
 
-    body > #landing.screen > .main-column {
-      display: inline-block;
+  body > #app-shell > #app-background {
+    position: fixed;
+    z-index: 0;
+    background-color: aquamarine;
+  }
+
+  body > #app-shell > #app-overlay {
+    visibility: hidden;
+  }
+
+  body > #app-shell > #app-screens {
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+    body > #app-shell > #app-screens > .screen {
+      display: block;
       position: relative;
-      width: 42vw;
-      float: left;
+      box-sizing: border-box;
+      width: inherit;
+      height: inherit;
+      padding: 7.5vw 7.5vh;
     }
 
-    body > #landing.screen > .sidebar {
-      display: inline-block;
-      position: relative;
-      width: 24vw;
-      float: left;
-      margin-left: 10vw;
-    }
-
-      body > #landing.screen > .main-column > *,
-      body > #landing.screen > .sidebar > * {
-        display: block;
-        position: relative;
-        border: 2px solid #000;
-        margin-bottom: 2vh;
+      body > #app-shell > #app-screens > .screen > .screen-title {
+        text-transform: lowercase;
+        letter-spacing: -4px;
+        font-weight: 900;
+        font-size: 2.4em;
       }
 
-      body > #landing.screen > .sidebar > ul {
-        border: none;
+      body > #app-shell > #app-screens > .screen > .screen-subtitle {
+        text-transform: lowercase;
+        font-weight: 900;
+        letter-spacing: -1px;
       }
 
-        body > #landing.screen > .sidebar > ul > li {
-          border: 2px solid #000;
-          margin-bottom: 2vw;
+      body > #app-shell > #app-screens > .screen > .screen-actions {
+        border: 8px solid #c8c;
+        border-radius: 1em;
+        max-width: 73vw;
+        margin: 0 auto;
+      }
+
+        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action {
+          text-align: center;
+          font-weight: 900;
+          text-transform: uppercase;
+          font-size: 1.25em;
+          letter-spacing: -2px;
+          padding: 3.5vh 2vw;
+          border-bottom: 4px solid #c8c;
+          color: #d9d;
+          transition: color .15s ease-in, background-color .15s ease-in;
         }
 
-      body > #landing.screen > .main-column > #video {
-        min-height: 20vw;
+        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action:hover{
+          background-color: #636;
+          color: #fff;
+          cursor: pointer;
+        }
+
+        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action:active{
+          background-color: #404;
+        }
+
+        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action:last-of-type{
+          border-bottom: 0;
+        }
+
+    body > #app-shell > #app-screens > #landing.screen {
+      background-color: purple;
+    }
+
+      body > #app-shell > #app-screens > #landing.screen > .screen-title {
+        color: #fff;
+      }
+
+      body > #app-shell > #app-screens > #landing.screen > .screen-subtitle {
+        color: #eae;
+        margin-bottom: 15vh;
       }
