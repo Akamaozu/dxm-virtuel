@@ -52,8 +52,9 @@ body > #app-shell {
         display: block;
         position: relative;
         box-sizing: border-box;
-        height: 7.5vw;
-        padding: 2.5vw;
+        height: 5em;
+        padding: 2em;
+        overflow: hidden;
       }
 
         body > #app-shell > #app-screens > #landing.screen > .screen-header > .screen-header-item {
@@ -63,7 +64,7 @@ body > #app-shell {
         }
 
         body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-logo.screen-header-item {
-          width: 3vw;
+          width: 2em;
           margin-right: 2.5em;
         }
 
@@ -71,13 +72,12 @@ body > #app-shell {
           font-weight: 900;
           color: #fff;
           font-size: 1.44em;
-          line-height: 1.3em;
           letter-spacing: -1px;
         }
 
         body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-avatar.screen-header-item {
           float: right;
-          height: 3.5em;
+          height: 3em;
           margin-left: 2.5em;
           margin-top: -0.8em;
           border-radius: .64em;
@@ -112,7 +112,6 @@ body > #app-shell {
           min-height: 97.5vh;
           overflow: hidden;
           overflow-y: auto;
-          background-color: orange;
           margin-top: 3em;
         }
 
@@ -151,9 +150,40 @@ body > #app-shell {
           margin-right: 4vw;
         }
 
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column > .primary-column-header {
+            box-sizing: border-box;
+            overflow: hidden;
+          }
+
+            body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column > .primary-column-header > .title {
+              float: left;
+              font-weight: 900;
+              font-size: 1.5em;
+              line-height: 1.88em;
+              letter-spacing: -2px;
+            }
+
+            body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column > .primary-column-header > .search {
+              outline: none;
+              float: right;
+              border: 0;
+              margin: .5em;
+              padding: .75em 1em;
+              border-radius: .25em;
+              box-shadow: 0 0 5px 2px #ddd;
+            }
+
+              body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column > .primary-column-header > .search:focus {
+                border-color: #014B9C !important;
+              }
+
+        body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column > .primary-column-body {
+          background-color: orange;
+          min-height: 100vw;
+        }
+
         body > #app-shell > #app-screens > #landing.screen > .screen-body > div.secondary-column {
           width: 20vw;
-          background-color: transparent;
         }
 
           body > #app-shell > #app-screens > #landing.screen > .screen-body > div.secondary-column > .secondary-column-item {
