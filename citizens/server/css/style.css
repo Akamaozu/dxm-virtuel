@@ -32,7 +32,7 @@ body > #app-shell {
   }
 
   body > #app-shell > #app-screens {
-    overflow-y: auto;
+    overflow: none;
     box-sizing: border-box;
   }
 
@@ -42,64 +42,141 @@ body > #app-shell {
       box-sizing: border-box;
       width: inherit;
       height: inherit;
-      padding: 7.5vw 7.5vh;
     }
 
-      body > #app-shell > #app-screens > .screen > .screen-title {
-        text-transform: lowercase;
-        letter-spacing: -4px;
-        font-weight: 900;
-        font-size: 2.4em;
+    body > #app-shell > #app-screens > #landing.screen {
+      background-color: black;
+    }
+
+      body > #app-shell > #app-screens > #landing.screen > .screen-header {
+        display: block;
+        position: relative;
+        box-sizing: border-box;
+        height: 7.5vw;
+        padding: 2.5vw;
       }
 
-      body > #app-shell > #app-screens > .screen > .screen-subtitle {
-        text-transform: lowercase;
-        font-weight: 900;
-        letter-spacing: -1px;
-      }
-
-      body > #app-shell > #app-screens > .screen > .screen-actions {
-        border: 8px solid #c8c;
-        border-radius: 1em;
-        max-width: 73vw;
-        margin: 0 auto;
-      }
-
-        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action {
-          text-align: center;
-          font-weight: 900;
-          text-transform: uppercase;
-          font-size: .95em;
-          letter-spacing: -1px;
-          padding: 3.5vh 2vw;
-          border-bottom: 4px solid #c8c;
-          color: #d9d;
-          transition: color .15s ease-in, background-color .15s ease-in;
+        body > #app-shell > #app-screens > #landing.screen > .screen-header > .screen-header-item {
+          display: block;
+          position: relative;
+          float: left;
         }
 
-        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action:hover{
-          background-color: #636;
+        body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-logo.screen-header-item {
+          width: 3vw;
+          margin-right: 2.5em;
+        }
+
+        body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-title.screen-header-item {
+          font-weight: 900;
           color: #fff;
+          font-size: 1.44em;
+          line-height: 1.3em;
+          letter-spacing: -1px;
+        }
+
+        body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-avatar.screen-header-item {
+          float: right;
+          height: 3.5em;
+          margin-left: 2.5em;
+          margin-top: -0.8em;
+          border-radius: .64em;
+          background-color: #5767D2;
+          transition: background-color .14s ease-out;
           cursor: pointer;
         }
 
-        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action:active{
-          background-color: #404;
+        body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-avatar.screen-header-item:hover {
+          background-color: #25A;
         }
 
-        body > #app-shell > #app-screens > .screen > .screen-actions > .screen-action:last-of-type{
-          border-bottom: 0;
+        body > #app-shell > #app-screens > #landing.screen > .screen-header > .header-avatar.screen-header-item:active {
+          background-color: #8AF;
         }
 
-    body > #app-shell > #app-screens > #landing.screen {
-      background-color: purple;
-    }
-
-      body > #app-shell > #app-screens > #landing.screen > .screen-title {
-        color: #fff;
+      body > #app-shell > #app-screens > #landing.screen > .screen-body {
+        display: block;
+        position: relative;
+        box-sizing: border-box;
+        height: 97.5vh;
+        background-color: #f7f7f7;
+        border-top-right-radius: 2em;
+        overflow: auto;
       }
 
-      body > #app-shell > #app-screens > #landing.screen > .screen-subtitle {
-        color: #eae;
-        margin-bottom: 15vh;
-      }
+        body > #app-shell > #app-screens > #landing.screen > .screen-body > div {
+          float: left;
+          display: block;
+          position: relative;
+          box-sizing: border-box;
+          min-height: 97.5vh;
+          overflow: hidden;
+          overflow-y: auto;
+          background-color: orange;
+          margin-top: 3em;
+        }
+
+        body > #app-shell > #app-screens > #landing.screen > .screen-body > div.context-nav {
+          width: 4vw;
+          margin-left: 2vw;
+          margin-right: 2vw;
+          background-color: #fff;
+        }
+
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > .context-nav > .context-nav-item {
+            background-color: #ccc;
+            width: 4vw;
+            height: 4vw;
+            border-radius: .75vw;
+            margin-bottom: 1.5vw;
+            line-height: 4vw;
+            font-weight: 900;
+            text-align: center;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color .3s ease-out;
+          }
+
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > .context-nav > .context-nav-item:hover {
+            background-color: #333;
+            transition: background-color .15s ease-in;
+          }
+
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > .context-nav > .context-nav-item:active {
+            background-color: #000;
+          }
+
+        body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column {
+          width: 64vw;
+          margin-right: 4vw;
+        }
+
+        body > #app-shell > #app-screens > #landing.screen > .screen-body > div.secondary-column {
+          width: 20vw;
+          background-color: transparent;
+        }
+
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > div.secondary-column > .secondary-column-item {
+            max-width: 20vw;
+            background: #fff;
+            box-sizing: border-box;
+            font-weight: 900;
+            font-size: .88em;
+            letter-spacing: -1px;
+            border: 1px solid #ddd;
+            border-radius: .25vw;
+            margin-bottom: 1vw;
+            padding: 1em;
+            cursor: pointer;
+            color: #777;
+            transition: color .1s ease-in, background-color .1s ease-in;
+          }
+
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > div.secondary-column > .secondary-column-item:hover {
+            color: #000;
+          }
+
+          body > #app-shell > #app-screens > #landing.screen > .screen-body > div.secondary-column > .secondary-column-item:active {
+            background-color: #ddd;
+          }
+

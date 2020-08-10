@@ -1,63 +1,43 @@
-<!--
-  <!doctype html>
-  <html>
-    <head>
-      <title>Virtuel Demo</title>
-      <link rel="stylesheet" type="text/css" href="css/reset.css">
-      <link rel="stylesheet" type="text/css" href="css/style.css">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta charset="UTF-8">
-    </head>
-    <body>
-        <div id="landing" class="screen">
-          <div class="main-column">
-            <div id="video" class="track-click">video</div>
-            <div id="about-school" class="track-click">about us</div>
-            <div id="more-info" class="track-click">more info</div>
+<!doctype html>
+<html>
+  <head>
+    <title>Virtuel Demo</title>
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <div id="app-shell">
+      <div id="app-background"></div>
+      <div id="app-screens">
+        <div id="landing" class="screen active-screen">
+          <div class="screen-header">
+            <img class="header-logo header screen-header-item" src="img/logo-icon@2x.png">
+            <div class="header-title screen-header-item">Ryerson Open House 2020</div>
+            <img class="header-avatar screen-header-item" src="img/girl-face-left-1.png">
           </div>
-          <div class="sidebar">
-            <div id="logo" class="sidebar track-click">logo</div>
-            <ul id="custom-buttons" class="sidebar">
-              <li class="track-click">custom button</li>
-              <li id="special-button" class="track-click">custom button</li>
-              <li class="track-click">custom button</li>
-            </ul>
-            <div id="quick-facts" class="sidebar track-click">quick facts</div>
-          </div>
-        </div>
-      <script src="js/behavior.js"></script>
-    </body>
-  </html>
--->
-
-<!--
--->
-  <!doctype html>
-  <html>
-    <head>
-      <title>Virtuel Demo</title>
-      <link rel="stylesheet" type="text/css" href="css/reset.css">
-      <link rel="stylesheet" type="text/css" href="css/style.css">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta charset="UTF-8">
-    </head>
-    <body>
-      <div id="app-shell">
-        <div id="app-background"></div>
-        <div id="app-screens">
-          <div id="landing" class="screen">
-            <div class="screen-title">Virtuel</div>
-            <div class="screen-subtitle">Teleconferencing Made Easy</div>
-            <div class="screen-actions">
-              <div id="create-admin" class="screen-action">Create Admin</div>
-              <div id="create-room" class="screen-action">Create Room</div>
-              <div id="invite-room-mod" class="screen-action">Invite Room Moderator</div>
+          <div class="screen-body">
+            <div class="context-nav">
+              <div class="context-nav-item">1</div>
+              <div class="context-nav-item">2</div>
+              <div class="context-nav-item">3</div>
+              <div class="context-nav-item"></div>
+            </div>
+            <div class="primary-column">
+            </div>
+            <div class="secondary-column">
+              <img class="secondary-column-item" src="img/ryerson-uni-logo.jpg" />
+              <div class="secondary-column-item">How To Apply?</div>
+              <div class="secondary-column-item">Programs</div>
+              <div class="secondary-column-item">Scholarships</div>
+              <div class="secondary-column-item">Quick Facts</div>
             </div>
           </div>
-          </div>
         </div>
-        <div id="app-overlay" class="track-click"></div>
       </div>
-      <script src="js/behavior.js"></script>
-    </body>
-  </html>
+      <div id="app-overlay"></div>
+    </div>
+    <script src="js/behavior.js"></script>
+  </body>
+</html>
