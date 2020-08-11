@@ -117,9 +117,10 @@ body > #app-shell {
 
         body > #app-shell > #app-screens > #landing.screen > .screen-body > div.context-nav {
           width: 4vw;
-          margin-left: 2vw;
-          margin-right: 2vw;
+          padding-left: 2vw;
+          padding-right: 2vw;
           background-color: #fff;
+          box-sizing: content-box;
         }
 
           body > #app-shell > #app-screens > #landing.screen > .screen-body > .context-nav > .context-nav-item {
@@ -179,6 +180,7 @@ body > #app-shell {
 
         body > #app-shell > #app-screens > #landing.screen > .screen-body > div.primary-column > .primary-column-body {
           background-color: orange;
+          margin-top: 1.64em;
           min-height: 100vw;
         }
 
