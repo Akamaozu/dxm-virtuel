@@ -4,8 +4,8 @@ var socketio = require('socket.io-client'),
     app = create_task();
 
 app.step( 'wait for document to load', function(){
-  if( document.readyState == 'interactive' ) return on_document_ready();
-  else document.addEventListener( 'DOMContentLoaded', on_document_ready );
+  if( document.readyState == 'complete' ) return on_document_ready();
+  else window.addEventListener( 'load', on_document_ready );
 
   function on_document_ready(){
     console.log( 'action=log-document-ready' );
@@ -33,9 +33,8 @@ app.step( 'make video embed responsive', function(){
   var video_embed = document.querySelector( '#video-embed' ),
       window_size = app.get( 'window-size' ),
       video_parent = video_embed.parentNode,
-      initial_dimensions = get_responsive_embed_stats();
-
-  var video_embed_aspect_ratio = video_embed.offsetWidth / video_embed.offsetHeight;
+      initial_dimensions = get_responsive_embed_stats(),
+      video_embed_aspect_ratio = video_embed.offsetWidth / video_embed.offsetHeight;
 
   console.log( 'action=log-initial-embed-dimensions width='+ video_embed.offsetWidth +'px height='+ video_embed.offsetHeight +'px ratio='+ video_embed_aspect_ratio );
 
