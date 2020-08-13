@@ -3,16 +3,6 @@ var socketio = require('socket.io-client'),
     debounce = require('debounce'),
     app = create_task();
 
-app.step( 'wait for document to load', function(){
-  if( document.readyState == 'complete' ) return on_document_ready();
-  else window.addEventListener( 'load', on_document_ready );
-
-  function on_document_ready(){
-    console.log( 'action=log-document-ready' );
-    app.next();
-  }
-});
-
 app.step( 'get / autoupdate window size', function(){
   window.addEventListener( 'resize', debounce( get_window_size, 99 , false ) );
   get_window_size();
@@ -34,7 +24,7 @@ app.step( 'make video embed responsive', function(){
       window_size = app.get( 'window-size' ),
       video_parent = video_embed.parentNode,
       initial_dimensions = get_responsive_embed_stats(),
-      video_embed_aspect_ratio = video_embed.offsetWidth / video_embed.offsetHeight;
+      video_embed_aspect_ratio = 2;
 
   console.log( 'action=log-initial-embed-dimensions width='+ video_embed.offsetWidth +'px height='+ video_embed.offsetHeight +'px ratio='+ video_embed_aspect_ratio );
 
